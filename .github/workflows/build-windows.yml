@@ -1,0 +1,31 @@
+name: Windows EXE bauen
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Quellcode herunterladen
+        uses: actions/checkout@v4
+      - name: Python bereitstellen (nur auf GitHub)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Abhängigkeiten installieren
+        run: python -m pip install --upgrade pip PySide6 ijson pyinstaller
+      - name: EXE erstellen
+        run: pyinstaller --noconfirm --clean --windowed --onefile --name GoogleTimelineToEarth app/main.py
+      - name: Fertige EXE bereitstellen
+        uses: actions/upload-artifact@v4
+        with:
+          name: GoogleTimelineToEarth-Windows
+          path: dist/GoogleTimelineToEarth.exe
+          if-no-files-found: error
+          retention-days: 14
